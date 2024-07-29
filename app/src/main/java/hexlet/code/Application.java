@@ -2,6 +2,7 @@ package hexlet.code;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class Application {
     public static void main(String[] args) throws SQLException {
@@ -25,6 +26,41 @@ public class Application {
                 while (resultSet.next()) {
                     System.out.println(resultSet.getString("username"));
                     System.out.println(resultSet.getString("phone"));
+                }
+            }
+
+            var sql4 = "INSERT INTO users (username, phone) VALUES (?, ?)";
+            try (var preparedStatement = conn.prepareStatement(sql4, Statement.RETURN_GENERATED_KEYS)) {
+                preparedStatement.setString(1, "Denis");
+                preparedStatement.setString(2, "33333333");
+                preparedStatement.executeUpdate();
+
+                preparedStatement.setString(1, "Maria");
+                preparedStatement.setString(2, "44444444");
+                preparedStatement.executeUpdate();
+
+                var generatedKey = preparedStatement.getGeneratedKeys();
+                if (generatedKey.next()) {
+                    System.out.println(generatedKey.getLong(1));
+                } else {
+                    throw new SQLException("DB have not returned an id after saving the entity");
+                }
+            }
+
+            var sql5 = "DELETE FROM users WHERE username = ?";
+
+            try (var preparedStatement = conn.prepareStatement(sql5)) {
+                preparedStatement.setString(1, "Maria");
+                preparedStatement.executeUpdate();
+            }
+
+            var sql6 = "SELECT * FROM users";
+            try (var statement3 = conn.createStatement()) {
+                var resultSet = statement3.executeQuery(sql6);
+
+                while (resultSet.next()) {
+                    System.out.printf("%d %s %s \n", resultSet.getInt("id"), resultSet.getString("username"), resultSet.getString("phone"));
+
                 }
             }
         }
