@@ -3,6 +3,8 @@ package hexlet.code;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class UserDAO {
@@ -56,12 +58,28 @@ public class UserDAO {
         }
     }
 
-    public void remove(User user) throws SQLException {
+    public void delete(User user) throws SQLException {
         var sql5 = "DELETE FROM users WHERE username = ?";
 
         try (var preparedStatement = connection.prepareStatement(sql5)) {
             preparedStatement.setString(1, user.getUsername());
             preparedStatement.executeUpdate();
         }
+    }
+    public List<User> getEntities() throws SQLException {
+        List<User> users = new ArrayList<>();
+        var sql = "SELECT * FROM users";
+        try (var statement = connection.createStatement()) {
+            var resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                Long id = resultSet.getLong("id");
+                String userName = resultSet.getString("username");
+                String phone = resultSet.getString("phone");
+                User user = new User(userName, phone);
+                user.setId(id);
+                users.add(user);
+            }
+        }
+        return users;
     }
 }
